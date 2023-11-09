@@ -8,7 +8,7 @@ COPY . .
 RUN pip install Flask
 # Set YOUR_NAME environment variable
 ENV YOUR_NAME="Michael"
-ENV HOSTNAME="ec2-13-40-108-124.eu-west-2.compute.amazonaws.com"
+ENV HOSTNAME="ec2-13-40-187-211.eu-west-2.compute.amazonaws.com"
 # Expose the correct port
 EXPOSE 5500
 # Create an entrypoint
