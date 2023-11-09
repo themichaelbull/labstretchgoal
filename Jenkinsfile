@@ -1,20 +1,33 @@
 pipeline {
     agent any
     stages {
-        stage('Pipeline Stage 1'){
+        stage('Cleanup Stage'){
             steps {
-                sh "chmod 777 *.sh"
-                sh "./stage1.sh"
+                sh "rm -rf *"
+                sh "docker rm -f \$(docker ps -aq) || true"
+                sh "docker rmi -f \$(docker images) || true"
+                sh "docker rm -f \$(docker ps -aq) || true"
+                sh "docker rmi -f \$(docker images) || true"
+                sh "docker network rm my-network || true"
             }
         }
-        stage('Pipeline Stage 2'){
+        stage('Clone Repo'){
             steps {
-                sh "./stage2.sh"
+                sh "git clone https://github.com/themichaelbull/labstretchgoal"
+                sh "cp -r labstretchgoal/* ./"
             }
         }
-        stage('Pipeline Stage 3'){
+        stage('Docker Build and Network'){
             steps {
-                sh "./stage3.sh"
+                sh "docker network create my-network"
+                sh "docker build -t myapp . -f Dockerfile --no-cache"
+                sh "docker build -t nginxcustom . -f DockerfileNginx --no-cache"
+            }
+        }
+        stage('Docker Run'){
+            steps {
+                sh "docker run -d --name myapp --network my-network myapp myapp"
+                sh "docker run -d -p 80:80 --name nginxcustom --network my-network nginxcustom:latest"
             }
         }
     }
